@@ -1,0 +1,128 @@
+/* brasfut-app/frontend/src/App.css */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+.App {
+  text-align: center;
+  margin-top: 50px;
+}
+
+/* brasfut-app/frontend/src/App.css (Adicionar ao final) */
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  background-color: #333;
+  margin-bottom: 20px;
+}
+
+nav ul li {
+  margin: 0 15px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 0;
+  display: block;
+  transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+  color: #00bcd4; /* Um azul mais claro para o hover */
+}
+
+.auth-form-container {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto; /* Centraliza o formulário */
+  text-align: left;
+}
+
+.auth-form-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.auth-form-container div {
+  margin-bottom: 15px;
+}
+
+.auth-form-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+.auth-form-container input[type="text"],
+.auth-form-container input[type="email"],
+.auth-form-container input[type="password"] {
+  width: calc(100% - 20px); /* Ajusta a largura considerando o padding */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+.auth-form-container button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-form-container button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.message {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* brasfut-app/frontend/src/App.css (Adicionar ao final) */
+
+.nav-user {
+  color: #add8e6; /* Um azul claro */
+  padding: 10px 0;
+  display: block;
+  font-weight: bold;
+}
+
+.logout-button {
+  background-color: #dc3545; /* Vermelho */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+  margin-left: 15px; /* Espaço do item anterior */
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
