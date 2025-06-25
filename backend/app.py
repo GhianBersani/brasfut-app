@@ -141,7 +141,8 @@ def register():
         return jsonify({"message": "Usuário registrado com sucesso!", "user_id": new_user.id}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Erro ao registrar usuário: {str(e)}"}), 500
+        # Melhorar a mensagem de erro para não expor detalhes internos
+        return jsonify({"message": "Erro interno ao registrar usuário."}), 500
 
 
 @app.route('/login', methods=['POST'])
@@ -195,25 +196,22 @@ def create_post():
         }), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Erro ao criar post: {str(e)}"}), 500
-
-# Rota para Listar Todos os Posts (GET /posts)
-# NOVO: Recebe 'logged_in_user_id' como parâmetro de query
+        return jsonify({"message": "Erro interno ao criar post."}), 500
 
 
 @app.route('/posts', methods=['GET'])
 def get_posts():
     logged_in_user_id = request.args.get(
-        'logged_in_user_id', type=int)  # Novo parâmetro
+        'logged_in_user_id', type=int)
 
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     posts_list = []
     for post in posts:
         author_username = post.author.username if post.author else 'Unknown'
         comments_count = post.comments.count()
-        likes_count = post.likes.count()
+        likes_count = db.session.query(Like).filter_by(
+            post_id=post.id).count()  # ALTERADO
 
-        # NOVO: Verificar se o post foi curtido pelo usuário logado
         is_liked = False
         if logged_in_user_id:
             is_liked = db.session.query(Like).filter_by(
@@ -228,15 +226,44 @@ def get_posts():
             "username": author_username,
             "comments_count": comments_count,
             "likes_count": likes_count,
-            "is_liked": is_liked  # Novo campo
+            "is_liked": is_liked
         })
     return jsonify(posts_list), 200
+
+# NOVA ROTA: Busca um único post por ID
+
+
+@app.route('/posts/<int:post_id>', methods=['GET'])
+def get_single_post(post_id):
+    logged_in_user_id = request.args.get('logged_in_user_id', type=int)
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"message": "Post não encontrado."}), 404
+
+    author_username = post.author.username if post.author else 'Unknown'
+    comments_count = post.comments.count()
+    likes_count = db.session.query(Like).filter_by(post_id=post.id).count()
+    is_liked = False
+    if logged_in_user_id:
+        is_liked = db.session.query(Like).filter_by(
+            user_id=logged_in_user_id, post_id=post.id
+        ).first() is not None
+
+    return jsonify({
+        "id": post.id,
+        "body": post.body,
+        "timestamp": post.timestamp.isoformat(),
+        "user_id": post.user_id,
+        "username": author_username,
+        "comments_count": comments_count,
+        "likes_count": likes_count,
+        "is_liked": is_liked
+    }), 200
 
 
 @app.route('/users/<string:username>', methods=['GET'])
 def get_user_profile(username):
-    logged_in_user_id = request.args.get(
-        'logged_in_user_id', type=int)  # Novo parâmetro
+    logged_in_user_id = request.args.get('logged_in_user_id', type=int)
 
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -247,9 +274,9 @@ def get_user_profile(username):
     posts_list = []
     for post in user_posts:
         comments_count = post.comments.count()
-        likes_count = post.likes.count()
+        likes_count = db.session.query(Like).filter_by(
+            post_id=post.id).count()  # ALTERADO
 
-        # NOVO: Verificar se o post foi curtido pelo usuário logado no perfil
         is_liked = False
         if logged_in_user_id:
             is_liked = db.session.query(Like).filter_by(
@@ -264,7 +291,7 @@ def get_user_profile(username):
             "username": user.username,
             "comments_count": comments_count,
             "likes_count": likes_count,
-            "is_liked": is_liked  # Novo campo
+            "is_liked": is_liked
         })
 
     user_data = {
@@ -301,7 +328,7 @@ def follow_user(user_id_to_follow):
         return jsonify({"message": f"Agora você está seguindo @{followed.username}."}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Erro ao seguir usuário: {str(e)}"}), 500
+        return jsonify({"message": "Erro interno ao seguir usuário."}), 500
 
 
 @app.route('/unfollow/<int:user_id_to_unfollow>', methods=['POST'])
@@ -320,23 +347,27 @@ def unfollow_user(user_id_to_unfollow):
         return jsonify({"message": "Você não pode deixar de seguir a si mesmo."}), 400
 
     existing_follow = Follow.query.filter_by(
-        user_id=follower_id, post_id=post_id).first()
+        follower_id=follower_id, followed_id=user_id_to_unfollow).first()
+
     if not existing_follow:
-        return jsonify({"message": f"Você não curtiu este post."}), 409
+        # Mensagem mais precisa
+        return jsonify({"message": f"Você não está seguindo @{followed.username}."}), 409
 
     try:
         db.session.delete(existing_follow)
         db.session.commit()
-        return jsonify({"message": "Post descurtido com sucesso!"}), 200
+        # Mensagem mais precisa
+        return jsonify({"message": f"Você deixou de seguir @{followed.username}."}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Erro ao descurtir post: {str(e)}"}), 500
+        return jsonify({"message": "Erro interno ao deixar de seguir usuário."}), 500
 
 
 @app.route('/is_following/<int:follower_id>/<int:followed_id>', methods=['GET'])
 def is_following(follower_id, followed_id):
     if follower_id == followed_id:
-        return jsonify({"is_following": False, "message": "Você não pode seguir a si mesmo."}), 200
+        # Retorna 200 com is_following: False, pois não faz sentido "seguir a si mesmo"
+        return jsonify({"is_following": False, "message": "Não é possível seguir a si mesmo."}), 200
     follow_relation = Follow.query.filter_by(
         follower_id=follower_id, followed_id=followed_id).first()
     return jsonify({"is_following": True}) if follow_relation else jsonify({"is_following": False})
@@ -345,24 +376,32 @@ def is_following(follower_id, followed_id):
 @app.route('/posts/followed/<int:user_id>', methods=['GET'])
 def get_followed_posts(user_id):
     logged_in_user_id = request.args.get(
-        'logged_in_user_id', type=int)  # Novo parâmetro
+        'logged_in_user_id', type=int)
 
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "Usuário não encontrado."}), 404
+
+    # Adicionando o próprio user_id para que seus posts apareçam no feed "followed" também
     followed_ids = [followed.followed_id for followed in user.followed]
-    if not followed_ids:
+    # Se o usuário não segue ninguém e não tem posts próprios, retorna vazio
+    if not followed_ids and not Post.query.filter_by(user_id=user_id).first():
         return jsonify([]), 200
 
+    # Incluir posts do próprio usuário na query
+    all_relevant_ids = followed_ids + [user_id]
+
+    # Usar .distinct() para evitar duplicatas se o próprio usuário se seguir (embora a lógica do follow evite isso)
     posts = Post.query.filter(Post.user_id.in_(
-        followed_ids)).order_by(Post.timestamp.desc()).all()
+        all_relevant_ids)).order_by(Post.timestamp.desc()).all()
+
     posts_list = []
     for post in posts:
         author_username = post.author.username if post.author else 'Unknown'
         comments_count = post.comments.count()
-        likes_count = post.likes.count()
+        likes_count = db.session.query(Like).filter_by(
+            post_id=post.id).count()  # ALTERADO
 
-        # NOVO: Verificar se o post foi curtido pelo usuário logado nos posts seguidos
         is_liked = False
         if logged_in_user_id:
             is_liked = db.session.query(Like).filter_by(
@@ -377,7 +416,7 @@ def get_followed_posts(user_id):
             "username": author_username,
             "comments_count": comments_count,
             "likes_count": likes_count,
-            "is_liked": is_liked  # Novo campo
+            "is_liked": is_liked
         })
     return jsonify(posts_list), 200
 
@@ -415,7 +454,7 @@ def add_comment(post_id):
         }), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Erro ao adicionar comentário: {str(e)}"}), 500
+        return jsonify({"message": "Erro interno ao adicionar comentário."}), 500
 
 
 @app.route('/posts/<int:post_id>/comments', methods=['GET'])
@@ -461,7 +500,7 @@ def like_post(post_id):
         return jsonify({"message": "Post curtido com sucesso!"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Erro ao curtir post: {str(e)}"}), 500
+        return jsonify({"message": "Erro interno ao curtir post."}), 500
 
 
 @app.route('/posts/<int:post_id>/unlike', methods=['POST'])
@@ -488,12 +527,42 @@ def unlike_post(post_id):
         return jsonify({"message": "Post descurtido com sucesso!"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Erro ao descurtir post: {str(e)}"}), 500
+        return jsonify({"message": "Erro interno ao descurtir post."}), 500
+
+# Rota para deletar um post (NOVA FUNÇÃO)
+
+
+@app.route('/posts/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    data = request.get_json()
+    user_id = data.get('user_id')
+
+    if not user_id:
+        return jsonify({"message": "ID do usuário é obrigatório para deletar o post."}), 401
+
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"message": "Post não encontrado."}), 404
+
+    # Verifica se o usuário que está tentando deletar é o autor do post
+    if post.user_id != user_id:
+        return jsonify({"message": "Você não tem permissão para deletar este post."}), 403
+
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({"message": "Post deletado com sucesso!"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Erro interno ao deletar post."}), 500
 
 
 # 4. Bloco de Execução Principal
 # ===============================
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Cria as novas tabelas (Comment, Like) se não existirem
+        # Cria as tabelas se não existirem.
+        # Se você já tem um banco de dados com dados, isso não recria ou apaga.
+        # Para atualizações de schema, seria necessário usar Flask-Migrate.
+        db.create_all()
     app.run(debug=True)

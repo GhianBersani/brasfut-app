@@ -1,4 +1,4 @@
-// brasfut-app/frontend/src/HomePage.js (Atualizado com tratamento de erros de fetch reforçado)
+// brasfut-app/frontend/src/HomePage.js (Atualizado para atualização de likes precisa e sutil)
 
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
@@ -16,22 +16,21 @@ function HomePage() {
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [likeLoadingMap, setLikeLoadingMap] = useState({});
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    let allPostsData = []; // Inicializar para garantir que esteja sempre definido
-    let followedPostsData = []; // Inicializar para garantir que esteja sempre definido
+    let allPostsData = [];
+    let followedPostsData = [];
 
     try {
       const queryParam = isLoggedIn && userId ? `?logged_in_user_id=${userId}` : '';
 
-      // Tenta buscar posts gerais
       try {
         const allPostsResponse = await fetch(`http://localhost:5000/posts${queryParam}`);
         if (!allPostsResponse.ok) {
-          // Não lançar erro aqui, apenas logar e continuar com array vazio
           console.warn(`Aviso: Falha ao carregar postagens gerais (URL: ${allPostsResponse.url}, Status: ${allPostsResponse.status}).`);
           allPostsData = [];
         } else {
@@ -42,7 +41,6 @@ function HomePage() {
         allPostsData = [];
       }
 
-      // Se logado, buscar posts de usuários seguidos
       if (isLoggedIn && userId) {
         try {
           const followedPostsResponse = await fetch(`http://localhost:5000/posts/followed/${userId}${queryParam}`);
@@ -61,24 +59,23 @@ function HomePage() {
       setFollowedPostsCount(followedPostsData.length);
 
       const combinedPostsMap = new Map();
-      followedPostsData.forEach(post => combinedPostsMap.set(post.id, post));
       allPostsData.forEach(post => combinedPostsMap.set(post.id, post));
+      followedPostsData.forEach(post => combinedPostsMap.set(post.id, post));
 
       let finalPosts = Array.from(combinedPostsMap.values());
       finalPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       if (searchTerm) {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        finalPosts = finalPosts.filter(post => 
+        finalPosts = finalPosts.filter(post =>
           post.body.toLowerCase().includes(lowerCaseSearchTerm) ||
           post.username.toLowerCase().includes(lowerCaseSearchTerm)
         );
       }
 
       setPosts(finalPosts);
-      
+
     } catch (err) {
-      // Este catch pegará erros muito mais gerais (ex: de parsing JSON se a requisição ok retornar HTML)
       setError('Não foi possível carregar as postagens. Tente novamente mais tarde.');
       console.error('Erro geral ao processar posts:', err);
     } finally {
@@ -100,6 +97,7 @@ function HomePage() {
       alert('Você precisa estar logado para curtir ou descurtir um post!');
       return;
     }
+    setLikeLoadingMap(prev => ({ ...prev, [postId]: true }));
     const url = `http://localhost:5000/posts/${postId}/${isCurrentlyLiked ? 'unlike' : 'like'}`;
     try {
       const response = await fetch(url, {
@@ -111,16 +109,20 @@ function HomePage() {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Falha ao curtir/descurtir.');
       }
-      setPosts(prevPosts => prevPosts.map(post => 
-        post.id === postId ? { 
-          ...post, 
-          likes_count: isCurrentlyLiked ? post.likes_count - 1 : post.likes_count + 1,
-          is_liked: !isCurrentlyLiked 
-        } : post
+      const updatedPostResponse = await fetch(`http://localhost:5000/posts/${postId}?logged_in_user_id=${userId}`);
+      if (!updatedPostResponse.ok) {
+        console.warn(`Aviso: Falha ao carregar postagem individual atualizada para o post ${postId}.`);
+        return;
+      }
+      const updatedPost = await updatedPostResponse.json();
+      setPosts(prevPosts => prevPosts.map(post =>
+        post.id === updatedPost.id ? updatedPost : post
       ));
     } catch (err) {
       console.error('Erro ao curtir/descurtir:', err);
       alert(err.message);
+    } finally {
+      setLikeLoadingMap(prev => ({ ...prev, [postId]: false }));
     }
   }, [isLoggedIn, userId]);
 
@@ -132,10 +134,12 @@ function HomePage() {
   const handleCloseCommentModal = useCallback(() => {
     setShowCommentModal(false);
     setSelectedPostId(null);
-    fetchPosts();
+    fetchPosts(); // Mantido o re-fetch aqui para atualizar a contagem de comentários após fechar o modal
   }, [fetchPosts]);
 
-  const handleCommentAdded = useCallback(() => { /* Funcionalidade futura */ }, []);
+  const handleCommentAdded = useCallback(() => {
+    fetchPosts(); // Mantido o re-fetch aqui para atualizar a contagem de comentários
+  }, [fetchPosts]);
 
   const handleEditPost = useCallback((postId) => {
     alert(`Editar post ${postId}. Funcionalidade em desenvolvimento!`);
@@ -146,7 +150,7 @@ function HomePage() {
       alert('Você precisa estar logado para excluir posts!');
       return;
     }
-    if (!window.confirm('Tem certeza que deseja excluir este post?')) {
+    if (!window.confirm('Tem certeza que deseja excluir este post? Esta ação é irreversível.')) {
         return;
     }
 
@@ -217,40 +221,74 @@ function HomePage() {
 
       {loading && <p>Carregando postagens...</p>}
       {error && <p className="error-message">{error}</p>}
-      {!loading && !error && posts.length > 0 && ( /* Adicionado posts.length > 0 para não mostrar lista vazia se não há posts */
+      {!loading && !error && (
         <div className="posts-list">
-          {posts.map((post) => (
-              <div key={post.id} className="post-card">
-                <div className="post-header">
-                  <Link to={`/users/${post.username}`} className="post-username-link">
-                    @{post.username}
-                  </Link>
-                  <span className="post-timestamp">
-                    {new Date(post.timestamp).toLocaleString('pt-BR')}
-                  </span>
-                </div>
-                <p className="post-body">{post.body}</p>
-                <div className="post-actions-bar">
-                  <button 
-                    onClick={() => handleLikeToggle(post.id, post.is_liked)} 
-                    className={`action-button like-button ${post.is_liked ? 'liked' : ''}`}
-                  >
-                    ❤️ {post.likes_count}
-                  </button>
-                  <button onClick={() => handleCommentClick(post.id)} className="action-button comment-button">
-                    💬 {post.comments_count}
-                  </button>
-                  {isLoggedIn && userId === post.user_id && (
+          {posts.map(post => (
+            <div className="post-card" key={post.id}>
+              <div className="post-header">
+                <Link to={`/users/${post.username}`} className="post-username-link">
+                  @{post.username}
+                </Link>
+                <span className="post-timestamp">
+                  {new Date(post.timestamp).toLocaleString('pt-BR')}
+                </span>
+              </div>
+              <div className="post-body">{post.body}</div>
+              <div className="post-actions_bar">
+                <button
+                  onClick={() => handleLikeToggle(post.id, post.is_liked)}
+                  className={`action-button like-button${post.is_liked ? ' liked' : ''}`}
+                  aria-label={post.is_liked ? "Descurtir" : "Curtir"}
+                  disabled={likeLoadingMap[post.id]}
+                >
+                  {likeLoadingMap[post.id] ? (
+                    <span className="like-spinner" />
+                  ) : (
                     <>
-                      <button onClick={() => handleEditPost(post.id)} className="action-button edit-button">✏️</button>
-                      <button onClick={() => handleDeletePost(post.id)} className="action-button delete-button">🗑️</button>
+                      <span role="img" aria-label="Curtir">❤️</span>
+                      <span>{post.likes_count}</span>
                     </>
                   )}
-                  <button className="action-button share-button">↪️</button>
-                </div>
+                </button>
+                <button
+                  onClick={() => handleCommentClick(post.id)}
+                  className="action-button comment-button"
+                  aria-label="Comentar"
+                >
+                  <span className="material-icons">chat_bubble_outline</span>
+                  <span className="action-count">{post.comments_count}</span>
+                </button>
+                <button
+                  onClick={() => handleRepost(post.id, post.is_reposted)}
+                  className="action-button repost-button"
+                  aria-label={post.is_reposted ? "Cancelar Repostagem" : "Repostar"}
+                  disabled={likeLoadingMap[post.id]}
+                >
+                  <span className="material-icons">repeat</span>
+                  <span className="action-count">{post.reposts_count}</span>
+                </button>
+                <button
+                  onClick={() => handleLikeToggle(post.id, post.is_liked)}
+                  className={`action-button like-button${post.is_liked ? ' liked' : ''}`}
+                  aria-label={post.is_liked ? "Descurtir" : "Curtir"}
+                  disabled={likeLoadingMap[post.id]}
+                >
+                  <span className="material-icons">favorite_border</span>
+                  <span className="action-count">{post.likes_count}</span>
+                </button>
+                <button className="action-button views-button" aria-label="Ver">
+                  <span className="material-icons">bar_chart</span>
+                  <span className="action-count">{post.views_count}</span>
+                </button>
+                <button className="action-button save-button" aria-label="Salvar">
+                  <span className="material-icons">bookmark_border</span>
+                </button>
+                <button className="action-button share-button" aria-label="Compartilhar">
+                  <span className="material-icons">ios_share</span>
+                </button>
               </div>
-            ))
-          }
+            </div>
+          ))}
         </div>
       )}
       {/* Mensagem se não houver posts após carregar e não houver erro */}
@@ -261,10 +299,10 @@ function HomePage() {
       )}
 
       {showCommentModal && selectedPostId && (
-        <CommentModal 
-          postId={selectedPostId} 
-          onClose={handleCloseCommentModal} 
-          onCommentAdded={handleCommentAdded} 
+        <CommentModal
+          postId={selectedPostId}
+          onClose={handleCloseCommentModal}
+          onCommentAdded={handleCommentAdded}
         />
       )}
     </div>

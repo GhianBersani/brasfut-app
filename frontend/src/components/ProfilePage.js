@@ -1,4 +1,4 @@
-// brasfut-app/frontend/src/components/ProfilePage.js
+// brasfut-app/frontend/src/components/ProfilePage.js (Atualizado para atualização de likes precisa e sutil)
 
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -8,7 +8,7 @@ import '../App.css';
 
 function ProfilePage() {
   const { username: urlUsername } = useParams();
-  const { userId: loggedInUserId, username: loggedInUsername, isLoggedIn, logout } = useContext(AuthContext);
+  const { userId: loggedInUserId, username: loggedInUsername, isLoggedIn } = useContext(AuthContext);
 
   const [profileUser, setProfileUser] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
@@ -23,7 +23,7 @@ function ProfilePage() {
     setError(null);
     try {
       const queryParam = isLoggedIn && loggedInUserId ? `?logged_in_user_id=${loggedInUserId}` : '';
-      
+
       const profileResponse = await fetch(`http://localhost:5000/users/${urlUsername}${queryParam}`);
       if (!profileResponse.ok) {
         if (profileResponse.status === 404) {
@@ -86,12 +86,18 @@ function ProfilePage() {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Falha na ação de seguir/deixar de seguir.');
       }
-      await fetchUserProfileAndStatus();
+
+      setIsFollowing(willFollow);
+      setProfileUser(prevProfileUser => ({
+        ...prevProfileUser,
+        followers_count: willFollow ? prevProfileUser.followers_count + 1 : prevProfileUser.followers_count - 1
+      }));
     } catch (err) {
       setError(err.message);
       console.error('Erro ao seguir/deixar de seguir:', err);
     }
-  }, [isLoggedIn, isFollowing, loggedInUserId, profileUser, fetchUserProfileAndStatus]);
+  }, [isLoggedIn, isFollowing, loggedInUserId, profileUser]);
+
 
   const handleLikeToggle = useCallback(async (postId, isCurrentlyLiked) => {
     if (!isLoggedIn) {
@@ -109,19 +115,26 @@ function ProfilePage() {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Falha ao curtir/descurtir.');
       }
-      setUserPosts(prevPosts => prevPosts.map(post => 
-        post.id === postId ? { 
-          ...post, 
-          likes_count: isCurrentlyLiked ? post.likes_count - 1 : post.likes_count + 1,
-          is_liked: !isCurrentlyLiked 
-        } : post
+
+      // NOVO: Buscar o post atualizado individualmente para uma atualização sutil
+      const updatedPostResponse = await fetch(`http://localhost:5000/posts/${postId}?logged_in_user_id=${loggedInUserId}`);
+      if (!updatedPostResponse.ok) {
+          console.warn(`Aviso: Falha ao carregar postagem individual atualizada para o post ${postId}.`);
+          return; // Não atualiza se não conseguir buscar o post atualizado
+      }
+      const updatedPost = await updatedPostResponse.json();
+
+      setUserPosts(prevPosts => prevPosts.map(post =>
+        post.id === updatedPost.id ? updatedPost : post // Substitui o post antigo pelo atualizado
       ));
+
     }
       catch (err) {
       console.error('Erro ao curtir/descurtir:', err);
       alert(err.message);
     }
   }, [isLoggedIn, loggedInUserId]);
+
 
   const handleCommentClick = useCallback((postId) => {
     setSelectedPostId(postId);
@@ -134,7 +147,9 @@ function ProfilePage() {
     fetchUserProfileAndStatus();
   }, [fetchUserProfileAndStatus]);
 
-  const handleCommentAdded = useCallback(() => { /* Funcionalidade futura */ }, []);
+  const handleCommentAdded = useCallback(() => {
+    fetchUserProfileAndStatus();
+  }, [fetchUserProfileAndStatus]);
 
   const handleEditPost = useCallback((postId) => {
     alert(`Editar post ${postId}. Funcionalidade em desenvolvimento!`);
@@ -145,7 +160,7 @@ function ProfilePage() {
       alert('Você precisa estar logado para excluir posts!');
       return;
     }
-    if (!window.confirm('Tem certeza que deseja excluir este post?')) {
+    if (!window.confirm('Tem certeza que deseja excluir este post? Esta ação é irreversível.')) {
         return;
     }
 
@@ -189,8 +204,8 @@ function ProfilePage() {
         <h2>@{profileUser.username}</h2>
         {isOwnProfile && <p className="profile-email">Email: {profileUser.email}</p>}
         <div className="profile-stats">
-          <span>**{profileUser.followers_count}** Seguidores</span>
-          <span>**{profileUser.followed_count}** Seguindo</span>
+          <span><strong>{profileUser.followers_count}</strong> Seguidores</span>
+          <span><strong>{profileUser.followed_count}</strong> Seguindo</span>
         </div>
         {!isOwnProfile && isLoggedIn && (
             <button onClick={handleFollowToggle} className="follow-button">
@@ -216,8 +231,8 @@ function ProfilePage() {
               </div>
               <p className="post-body">{post.body}</p>
               <div className="post-actions-bar">
-                  <button 
-                    onClick={() => handleLikeToggle(post.id, post.is_liked)} 
+                  <button
+                    onClick={() => handleLikeToggle(post.id, post.is_liked)}
                     className={`action-button like-button ${post.is_liked ? 'liked' : ''}`}
                   >
                     ❤️ {post.likes_count}
@@ -239,10 +254,10 @@ function ProfilePage() {
       </div>
 
       {showCommentModal && selectedPostId && (
-        <CommentModal 
-          postId={selectedPostId} 
-          onClose={handleCloseCommentModal} 
-          onCommentAdded={handleCommentAdded} 
+        <CommentModal
+          postId={selectedPostId}
+          onClose={handleCloseCommentModal}
+          onCommentAdded={handleCommentAdded}
         />
       )}
     </div>

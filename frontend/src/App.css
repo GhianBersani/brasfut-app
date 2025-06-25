@@ -1,556 +1,415 @@
 /* brasfut-app/frontend/src/App.css (CÓDIGO COMPLETO E FINAL) */
 
-/* Variáveis de Cores */
+/* =========================
+   VARIÁVEIS DE CORES MODERNAS
+   ========================= */
 :root {
-  /* Tema Claro */
-  --primary-bg: #ffffff;   /* Fundo principal da página (branco) */
-  --card-bg: #ffffff;      /* Fundo do card de login/registro (branco) */
-  --text-color: #000000;   /* Preto */
-  --input-bg: #efefef;    /* Fundo de input levemente diferente (cinza claro) */
-  --input-border: #000000; /* BORDA PRETA para inputs no tema CLARO */
-  --link-color: #007bff;   /* Azul padrão para links */
-  --highlight-color: #00FF00; /* Lime */
-  --separator-color: #000000; /* "OU" em PRETO para tema CLARO */
-
-  /* Botões */
-  --button-primary-bg: #00FF00; /* Lime */
-  --button-primary-text: #000000; /* Preto */
-  --button-secondary-link-text: #007bff; /* Azul para links secundários */
-  --button-tertiary-link-text: #000000; /* Preto para links terciários */
+  --primary-bg: #000;
+  --secondary-bg: #16181c;
+  --card-bg: #16181c;
+  --text-color: #fff;
+  --text-secondary: #8899a6;
+  --accent-blue: #1da1f2;
+  --accent-blue-hover: #1991da;
+  --border-color: #222327;
+  --danger: #e0245e;
 }
 
-/* Tema Escuro */
-body.dark {
-  --primary-bg: #000000;     /* Preto puro */
-  --card-bg: #000000;       /* Fundo do card de login/registro (preto) */
-  --text-color: #ffffff;     /* Branco */
-  --input-bg: #262626;       /* Fundo de input escuro */
-  --input-border: #ffffff;  /* BORDA BRANCA para inputs no tema ESCURO */
-  --link-color: #00FF00;     /* Lime */
-  --highlight-color: #00FF00; /* Lime */
-  --separator-color: #ffffff; /* "OU" em BRANCO para tema ESCURO */
-
-  /* Botões */
-  --button-primary-bg: #00FF00; /* Lime */
-  --button-primary-text: #000000; /* Preto */
-  --button-secondary-link-text: #00FF00; /* Lime para links secundários */
-  --button-tertiary-link-text: #ffffff; /* Branco para links terciários */
-}
-
-/* Estilos Gerais */
-body {
-  font-family: 'Inter', Arial, sans-serif;
+/* =========================
+   GERAL E BACKGROUND
+   ========================= */
+body, html {
+  background: var(--primary-bg);
+  color: var(--text-color);
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: var(--primary-bg); /* Garante que o fundo da página é a cor primária */
-  color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.App {
-  text-align: center;
-}
-
-/* Estilos da AuthPage */
-.auth-page-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  background-color: var(--primary-bg);
-  color: var(--text-color);
-  position: relative; /* Para posicionar o botão de tema */
-  overflow: auto; /* Permite scroll se o conteúdo for maior que a tela */
-  padding: 20px; /* Adiciona um padding geral para evitar que o conteúdo encoste nas bordas */
 }
 
-.theme-toggle-icon {
-  position: absolute;
-  top: 20px;
-  left: 20px; /* Canto superior esquerdo */
-  background: none;
-  border: none;
-  font-size: 1.0em; /* Ícone MENOR */
-  cursor: pointer;
-  padding: 3px;
-  border-radius: 50%;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  color: var(--text-color);
-  z-index: 10;
+/* =========================
+   ÁREA DE LOGIN/CADASTRO
+   ========================= */
+.auth-page-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-bg);
 }
 
-.theme-toggle-icon:hover {
-  background-color: var(--input-border); /* Usar a cor da borda do input no hover */
-}
-
-.auth-card-wrapper { /* Novo wrapper para o card principal e links externos, centralizado */
+.auth-card-wrapper, .auth-form-card {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  padding: 36px 32px 32px 32px;
+  max-width: 380px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px; /* Espaço entre o card e outros elementos */
-  width: 100%;
-  max-width: 350px; /* Largura máxima do card principal como no Instagram */
-}
-
-.auth-form-card { /* O card que contém o logo e os formulários */
-    background-color: var(--card-bg); /* AGORA USA CARD-BG (branco/preto) */
-    padding: 30px;
-    border: 1px solid var(--input-border); /* BORDA DO TEMA NOS CARDS */
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Manter sombra sutil */
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px; /* Espaço entre elementos dentro do card */
-}
-
-.app-logo-small { /* Estilo para o LOGO dentro do card */
-  font-size: 3em;
-  font-weight: bold;
-  color: var(--text-color);
-  padding: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1em;
-  height: 1em;
-  border: 2px solid var(--text-color);
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.app-tagline-small { /* Tagline dentro do card */
-  font-size: 0.9em;
-  color: var(--text-color);
-  margin-top: 0;
-  margin-bottom: 20px;
-}
-
-.auth-form-card h2 { /* Títulos Login/Registrar */
-    font-size: 1.5em;
-    margin-bottom: 20px;
-    color: var(--text-color);
-    text-align: center;
 }
 
 .auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    max-width: 280px;
-    margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
 }
 
 .auth-form input[type="text"],
 .auth-form input[type="email"],
 .auth-form input[type="password"] {
-  width: calc(100% - 24px); /* Ajuste para padding (10px * 2) + border (2px * 2) = 24px */
-  padding: 10px;
-  border: 2px solid var(--input-border); /* BORDA MAIS GROSSA E COM COR DO TEMA */
-  border-radius: 3px;
-  font-size: 0.9em;
-  background-color: var(--input-bg);
+  background: #222327;
   color: var(--text-color);
-}
-
-.auth-form input::placeholder {
-  color: var(--text-color);
-  opacity: 0.6;
-}
-
-.auth-button {
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  border: none; /* SEM BORDA NO BOTÃO */
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
   font-size: 1em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  margin-top: 8px;
+  transition: border 0.2s;
+  margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.auth-form input:focus {
+  border: 1.5px solid var(--accent-blue);
+  outline: none;
 }
 
 .auth-button.primary {
-  background-color: var(--button-primary-bg);
-  color: var(--button-primary-text);
+  background: var(--accent-blue);
+  color: var(--text-color);
+  border: none;
+  border-radius: 999px;
+  font-weight: bold;
+  padding: 12px 0;
+  margin-top: 10px;
+  transition: background 0.2s;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1.1em;
 }
 
 .auth-button.primary:hover {
-  filter: brightness(1.1);
+  background: var(--accent-blue-hover);
 }
 
-.auth-separator { /* Estilo para o "OU" */
-  width: 100%;
-  text-align: center;
-  position: relative;
-  margin: 20px 0;
-  color: var(--separator-color);
-}
-
-.auth-separator::before { /* Linha à esquerda */
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: calc(50% - 25px); /* Ajustado para deixar mais espaço para o "OU" */
-  border-bottom: 1px solid var(--separator-color);
-  transform: translateY(-50%);
-}
-
-.auth-separator::after { /* Linha à direita */
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 0;
-  width: calc(50% - 25px); /* Ajustado para deixar mais espaço para o "OU" */
-  border-bottom: 1px solid var(--separator-color);
-  transform: translateY(-50%);
-}
-
-.auth-separator span {
-  background: var(--card-bg); /* FUNDO DO CARD para cobrir a linha */
-  padding: 0 10px;
-  position: relative;
-  z-index: 1;
-}
-
-.auth-button.secondary-link { /* Para "Criar nova conta" / "Já tem uma conta?" */
+.auth-button.secondary-link {
+  color: var(--accent-blue);
   background: none;
   border: none;
-  color: var(--button-secondary-link-text);
-  font-size: 0.9em;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 15px;
-}
-
-.auth-button.secondary-link:hover {
-  filter: brightness(1.2);
-}
-
-.message {
   margin-top: 10px;
-  padding: 8px;
-  border-radius: 4px;
   font-weight: bold;
-  text-align: center;
-  font-size: 0.8em;
-  color: red;
-}
-
-/* Ocultar labels de input padrão, placeholders são suficientes */
-.auth-form label {
-  display: none;
-}
-
-/* Esconder os h2 dos formulários, apenas se estiverem dentro do card */
-.auth-form-card h2 {
-  display: none;
-}
-.auth-form-card h2.visible {
-  display: block;
-}
-
-
-/* Estilos para a Navbar (ajustado para as novas variáveis de cor) */
-nav ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  background-color: var(--card-bg);
-  margin-bottom: 20px;
-  padding: 10px 0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  border-radius: 0 0 8px 8px;
-  border: 1px solid var(--input-border);
-}
-
-nav ul li {
-  margin: 0 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-nav ul li a {
-  color: var(--text-color);
-  text-decoration: none;
-  padding: 10px 0;
-  display: block;
-  transition: color 0.3s ease;
-}
-
-nav ul li a:hover {
-  color: var(--highlight-color);
-}
-
-.nav-user {
-  color: var(--text-color);
-  padding: 10px 0;
-  display: block;
-  font-weight: bold;
-}
-
-.logout-button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
   cursor: pointer;
-  font-size: 0.9em;
-  transition: background-color 0.3s ease;
-}
-
-.logout-button:hover {
-  background-color: #c82333;
-}
-
-
-/* Outros estilos (mantidos do App.css anterior) */
-.create-post-container {
-  background-color: var(--card-bg);
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  width: 100%;
-  max-width: 600px;
-  margin: 30px auto;
-  text-align: left;
-  border: 1px solid var(--input-border);
-}
-
-.create-post-container h3 {
   text-align: center;
-  margin-bottom: 20px;
-  color: var(--text-color);
 }
 
-.create-post-container textarea {
-  width: calc(100% - 22px);
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid var(--input-border);
-  border-radius: 5px;
-  font-size: 1em;
-  resize: vertical;
-  background-color: var(--input-bg);
-  color: var(--text-color);
-}
-
-.post-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.post-actions span {
-  font-size: 0.9em;
-  color: var(--text-color);
-}
-
-.create-post-container button[type="submit"] {
-  padding: 10px 20px;
-  background-color: var(--highlight-color);
-  color: var(--button-primary-text);
-  border: none;
-  border-radius: 5px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.create-post-container button[type="submit"]:hover {
-  background-color: #00e600;
-}
-
+/* =========================
+   ÁREA DE POSTS (FEED)
+   ========================= */
 .posts-list {
-  margin-top: 40px;
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
+  padding: 0 12px;
 }
 
 .post-card {
-  background-color: var(--card-bg);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
-  text-align: left;
-  border: 1px solid var(--input-border);
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 24px 12px 24px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+  transition: background 0.2s;
+}
+
+.post-card:hover {
+  background: #23272f;
 }
 
 .post-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--input-border);
-  padding-bottom: 8px;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
-.post-username {
-  font-weight: bold;
-  color: var(--link-color);
+.post-username-link {
+  color: var(--accent-blue);
+  font-weight: 600;
+  text-decoration: none;
   font-size: 1.1em;
 }
 
+.post-username-link:hover {
+  text-decoration: underline;
+}
+
 .post-timestamp {
-  font-size: 0.8em;
-  color: var(--text-color);
+  color: var(--text-secondary);
+  font-size: 0.9em;
 }
 
 .post-body {
-  margin-top: 10px;
-  line-height: 1.5;
   color: var(--text-color);
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  font-size: 1.15em;
+  margin-bottom: 16px;
+  word-break: break-word;
 }
 
-.error-message {
-  color: #dc3545;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 20px;
-}
-
-.loading-message {
-  text-align: center;
-  margin-top: 20px;
-  color: var(--text-color);
-}
-
-.profile-page-container {
-  background-color: var(--card-bg);
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.post-image {
   width: 100%;
-  max-width: 700px;
-  margin: 30px auto;
+  border-radius: 16px;
+  margin: 12px 0;
+  object-fit: cover;
+  max-height: 400px;
+  background: #111;
+}
+
+.post-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 0;
+}
+
+.post-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.3em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s, background 0.2s;
+  padding: 6px 10px;
+  border-radius: 999px;
+  position: relative;
+  justify-content: center;
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.like-button.liked {
+  color: var(--accent-blue);
+  font-weight: bold;
+  background: rgba(29,161,242,0.08);
+}
+
+.like-button:not(.liked):hover {
+  color: var(--accent-blue);
+  background: rgba(29,161,242,0.12);
+}
+
+.comment-button:hover {
+  color: var(--accent-blue);
+  background: rgba(29,161,242,0.08);
+}
+
+.save-button:hover {
+  color: var(--accent-blue);
+  background: rgba(29,161,242,0.08);
+}
+
+.share-button:hover {
+  color: var(--accent-blue);
+  background: rgba(29,161,242,0.08);
+}
+
+.stats-button {
+  color: var(--text-secondary);
+  cursor: default;
+  background: none;
+}
+
+.action-button span {
+  font-size: 1em;
+}
+
+.action-count {
+  font-size: 1em;
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+
+.feed-guidance-message {
+  color: var(--text-secondary);
   text-align: center;
-  border: 1px solid var(--input-border);
+  margin: 24px 0;
+}
+
+/* =========================
+   BOTÕES DE SEGUIR/DEIXAR DE SEGUIR
+   ========================= */
+.follow-button {
+  background: var(--accent-blue);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 24px;
+  font-weight: 600;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  outline: none;
+  margin-left: 12px;
+}
+
+.follow-button.unfollow {
+  background: #fff;
+  color: var(--accent-blue);
+  border: 1.5px solid var(--accent-blue);
+}
+
+.follow-button:hover {
+  background: var(--accent-blue-hover);
+  color: #fff;
+}
+
+.follow-button.unfollow:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+/* =========================
+   ÁREA DE PERFIL
+   ========================= */
+.profile-container {
+  background: var(--secondary-bg);
+  border-radius: 16px;
+  max-width: 600px;
+  margin: 32px auto 0 auto;
+  padding: 32px 24px 24px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 .profile-header {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--input-border);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 
-.profile-header h2 {
-  color: var(--text-color);
-  margin-bottom: 10px;
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #222327;
+  object-fit: cover;
+  border: 2px solid var(--accent-blue);
 }
 
-.profile-email {
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-username {
+  font-size: 1.3em;
+  font-weight: bold;
   color: var(--text-color);
-  font-size: 0.9em;
-  margin-bottom: 15px;
+}
+
+.profile-bio {
+  color: var(--text-secondary);
+  font-size: 1em;
 }
 
 .profile-stats {
   display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin-top: 15px;
-  font-size: 1.1em;
-  color: var(--text-color);
-}
-
-.profile-stats span {
-  display: block;
-  padding: 5px 0;
-}
-
-.profile-stats span strong {
-  color: var(--link-color);
-}
-
-.follow-button {
-  margin-top: 20px;
-  padding: 10px 25px;
-  background-color: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  border: none;
-  border-radius: 5px;
+  gap: 24px;
+  margin-top: 10px;
+  color: var(--text-secondary);
   font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.follow-button:hover {
-  opacity: 0.9;
+/* =========================
+   BARRA DE BUSCA
+   ========================= */
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
 }
 
-h3 {
-  text-align: center;
-  margin-top: 30px;
-  margin-bottom: 20px;
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: #23272f;
   color: var(--text-color);
+  font-size: 1em;
+  outline: none;
+  transition: border 0.2s;
 }
 
-.post-username-link {
-  color: var(--link-color);
-  text-decoration: none;
-  transition: color 0.2s ease;
+.search-input:focus {
+  border: 1.5px solid var(--accent-blue);
 }
 
-.post-username-link:hover {
-  color: var(--highlight-color);
-  text-decoration: underline;
+/* =========================
+   SPINNER DE LIKE
+   ========================= */
+.like-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--accent-blue);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.feed-guidance-message {
-  background-color: var(--card-bg);
-  border-left: 5px solid var(--link-color);
-  padding: 15px 20px;
-  margin: 20px auto;
-  max-width: 600px;
-  border-radius: 5px;
-  color: var(--text-color);
-  font-size: 0.95em;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--input-border);
+/* =========================
+   RESPONSIVIDADE
+   ========================= */
+@media (max-width: 700px) {
+  .posts-list, .profile-container {
+    max-width: 100vw;
+    padding: 0 2vw;
+  }
+  .post-card, .profile-container {
+    padding: 14px 2vw 10px 2vw;
+  }
+  .auth-card-wrapper, .auth-form-card {
+    padding: 18px 2vw;
+    max-width: 98vw;
+  }
+  .search-input {
+    max-width: 98vw;
+  }
 }
 
-/* Responsividade para o layout de duas colunas em telas maiores */
-@media (min-width: 768px) {
-    .auth-page-content-wrapper {
-        flex-direction: row;
-        justify-content: center; /* Centraliza ambos os blocos */
-        align-items: center;
-        gap: 80px; /* Mais espaço entre logo e formulário */
-    }
+/* =========================
+   CSS EXISTENTE (MANTIDO)
+   ========================= */
 
-    .auth-logo-section {
-        flex: none; /* Não ocupa espaço flexível */
-        width: auto;
-    }
-
-    .auth-forms-section {
-        flex: none; /* Não ocupa espaço flexível */
-        width: auto;
-    }
-}
-
-/* Estilos adicionais para telas pequenas para manter o espaçamento */
-@media (max-width: 767px) {
-    .auth-form-card {
-        padding: 20px;
-    }
-    .auth-form input[type="text"],
-    .auth-form input[type="email"],
-    .auth-form input[type="password"] {
-        padding: 10px;
-    }
-    .auth-button {
-        padding: 12px;
-    }
-}
+/* Adicione aqui o restante do seu CSS antigo, se necessário, para manter compatibilidade com outros componentes do app. */
