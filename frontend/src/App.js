@@ -1,37 +1,67 @@
-// brasfut-app/frontend/src/App.js (Atualizado com componente Navbar)
+// brasfut-app/frontend/src/App.js
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Remover Link e useNavigate
+import React, { useContext, useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
-// Importar os componentes
-import Register from './components/Register';
-import Login from './components/Login';
-import Navbar from './components/Navbar'; // Importar o novo componente Navbar
-import HomePage from './HomePage'; // Manter HomePage, mas podemos movê-lo também se quisermos.
+// Importar componentes de rota
+import AuthPage from './components/AuthPage'; // Importar AuthPage (é o único ponto de entrada para autenticação)
+import Navbar from './components/Navbar';
+import HomePage from './HomePage';
+import ErrorBoundary from './components/ErrorBoundary';
+import ProfilePage from './components/ProfilePage';
 
-// Componente da Página Inicial
-// OBS: HomePage agora precisa ser um arquivo separado ou ter seu próprio useContext(AuthContext)
-// Para simplificar, vamos movê-la para um novo arquivo 'HomePage.js' dentro de 'src'
+// Importar contexto de autenticação
+import { AuthContext } from './context/AuthContext';
+
+// Criar o contexto do tema (exportado para ser usado em AuthPage e Navbar.js)
+export const ThemeContext = React.createContext();
 
 function App() {
-  return (
-    <Router>
-      <div className="App">
-        <Navbar /> {/* Renderiza o componente Navbar aqui */}
+  const { isLoggedIn } = useContext(AuthContext);
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('appTheme');
+    return savedTheme || 'dark'; // Padrão 'dark'
+  });
 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </div>
-    </Router>
+  useEffect(() => {
+    localStorage.setItem('appTheme', theme);
+    document.body.className = theme;
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      <Router>
+        <div className="App">
+          {/* Se não estiver logado, sempre mostra a AuthPage na rota raiz */}
+          {!isLoggedIn ? (
+            <Routes>
+              <Route path="/" element={<AuthPage />} />
+              {/* Redireciona qualquer outra rota para a AuthPage se não logado */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          ) : (
+            // Se estiver logado, mostra a estrutura principal do app
+            <>
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<ErrorBoundary><HomePage /></ErrorBoundary>} />
+                <Route path="/users/:username" element={<ErrorBoundary><ProfilePage /></ErrorBoundary>} />
+                {/* Se o usuário estiver logado e tentar acessar a raiz ou rotas de autenticação, redireciona para a HomePage */}
+                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="/register" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} /> {/* Rota curinga para outras rotas */}
+              </Routes>
+            </>
+          )}
+        </div>
+      </Router>
+    </ThemeContext.Provider>
   );
 }
-
-// Para evitar conflito, mova HomePage para um arquivo separado 'src/HomePage.js'
-// ou defina-o dentro de App.js, mas sem usar useContext em App.js
-// Já que HomePage usa useContext, o ideal é que ela seja um componente separado.
 
 export default App;

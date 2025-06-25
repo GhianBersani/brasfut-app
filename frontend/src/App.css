@@ -1,35 +1,282 @@
-/* brasfut-app/frontend/src/App.css */
+/* brasfut-app/frontend/src/App.css (CÓDIGO COMPLETO E FINAL) */
 
+/* Variáveis de Cores */
+:root {
+  /* Tema Claro */
+  --primary-bg: #ffffff;   /* Fundo principal da página (branco) */
+  --card-bg: #ffffff;      /* Fundo do card de login/registro (branco) */
+  --text-color: #000000;   /* Preto */
+  --input-bg: #efefef;    /* Fundo de input levemente diferente (cinza claro) */
+  --input-border: #000000; /* BORDA PRETA para inputs no tema CLARO */
+  --link-color: #007bff;   /* Azul padrão para links */
+  --highlight-color: #00FF00; /* Lime */
+  --separator-color: #000000; /* "OU" em PRETO para tema CLARO */
+
+  /* Botões */
+  --button-primary-bg: #00FF00; /* Lime */
+  --button-primary-text: #000000; /* Preto */
+  --button-secondary-link-text: #007bff; /* Azul para links secundários */
+  --button-tertiary-link-text: #000000; /* Preto para links terciários */
+}
+
+/* Tema Escuro */
+body.dark {
+  --primary-bg: #000000;     /* Preto puro */
+  --card-bg: #000000;       /* Fundo do card de login/registro (preto) */
+  --text-color: #ffffff;     /* Branco */
+  --input-bg: #262626;       /* Fundo de input escuro */
+  --input-border: #ffffff;  /* BORDA BRANCA para inputs no tema ESCURO */
+  --link-color: #00FF00;     /* Lime */
+  --highlight-color: #00FF00; /* Lime */
+  --separator-color: #ffffff; /* "OU" em BRANCO para tema ESCURO */
+
+  /* Botões */
+  --button-primary-bg: #00FF00; /* Lime */
+  --button-primary-text: #000000; /* Preto */
+  --button-secondary-link-text: #00FF00; /* Lime para links secundários */
+  --button-tertiary-link-text: #ffffff; /* Branco para links terciários */
+}
+
+/* Estilos Gerais */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', Arial, sans-serif;
   margin: 0;
-  padding: 20px;
-  background-color: #f0f2f5;
-  color: #333;
+  padding: 0;
+  background-color: var(--primary-bg); /* Garante que o fundo da página é a cor primária */
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .App {
   text-align: center;
-  margin-top: 50px;
 }
 
-/* brasfut-app/frontend/src/App.css (Adicionar ao final) */
+/* Estilos da AuthPage */
+.auth-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+  position: relative; /* Para posicionar o botão de tema */
+  overflow: auto; /* Permite scroll se o conteúdo for maior que a tela */
+  padding: 20px; /* Adiciona um padding geral para evitar que o conteúdo encoste nas bordas */
+}
 
+.theme-toggle-icon {
+  position: absolute;
+  top: 20px;
+  left: 20px; /* Canto superior esquerdo */
+  background: none;
+  border: none;
+  font-size: 1.0em; /* Ícone MENOR */
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  color: var(--text-color);
+  z-index: 10;
+}
+
+.theme-toggle-icon:hover {
+  background-color: var(--input-border); /* Usar a cor da borda do input no hover */
+}
+
+.auth-card-wrapper { /* Novo wrapper para o card principal e links externos, centralizado */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; /* Espaço entre o card e outros elementos */
+  width: 100%;
+  max-width: 350px; /* Largura máxima do card principal como no Instagram */
+}
+
+.auth-form-card { /* O card que contém o logo e os formulários */
+    background-color: var(--card-bg); /* AGORA USA CARD-BG (branco/preto) */
+    padding: 30px;
+    border: 1px solid var(--input-border); /* BORDA DO TEMA NOS CARDS */
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Manter sombra sutil */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Espaço entre elementos dentro do card */
+}
+
+.app-logo-small { /* Estilo para o LOGO dentro do card */
+  font-size: 3em;
+  font-weight: bold;
+  color: var(--text-color);
+  padding: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  border: 2px solid var(--text-color);
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.app-tagline-small { /* Tagline dentro do card */
+  font-size: 0.9em;
+  color: var(--text-color);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.auth-form-card h2 { /* Títulos Login/Registrar */
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 280px;
+    margin-bottom: 15px;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"] {
+  width: calc(100% - 24px); /* Ajuste para padding (10px * 2) + border (2px * 2) = 24px */
+  padding: 10px;
+  border: 2px solid var(--input-border); /* BORDA MAIS GROSSA E COM COR DO TEMA */
+  border-radius: 3px;
+  font-size: 0.9em;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+.auth-form input::placeholder {
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none; /* SEM BORDA NO BOTÃO */
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-top: 8px;
+}
+
+.auth-button.primary {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+.auth-button.primary:hover {
+  filter: brightness(1.1);
+}
+
+.auth-separator { /* Estilo para o "OU" */
+  width: 100%;
+  text-align: center;
+  position: relative;
+  margin: 20px 0;
+  color: var(--separator-color);
+}
+
+.auth-separator::before { /* Linha à esquerda */
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: calc(50% - 25px); /* Ajustado para deixar mais espaço para o "OU" */
+  border-bottom: 1px solid var(--separator-color);
+  transform: translateY(-50%);
+}
+
+.auth-separator::after { /* Linha à direita */
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: calc(50% - 25px); /* Ajustado para deixar mais espaço para o "OU" */
+  border-bottom: 1px solid var(--separator-color);
+  transform: translateY(-50%);
+}
+
+.auth-separator span {
+  background: var(--card-bg); /* FUNDO DO CARD para cobrir a linha */
+  padding: 0 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-button.secondary-link { /* Para "Criar nova conta" / "Já tem uma conta?" */
+  background: none;
+  border: none;
+  color: var(--button-secondary-link-text);
+  font-size: 0.9em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.auth-button.secondary-link:hover {
+  filter: brightness(1.2);
+}
+
+.message {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.8em;
+  color: red;
+}
+
+/* Ocultar labels de input padrão, placeholders são suficientes */
+.auth-form label {
+  display: none;
+}
+
+/* Esconder os h2 dos formulários, apenas se estiverem dentro do card */
+.auth-form-card h2 {
+  display: none;
+}
+.auth-form-card h2.visible {
+  display: block;
+}
+
+
+/* Estilos para a Navbar (ajustado para as novas variáveis de cor) */
 nav ul {
   list-style: none;
   padding: 0;
   display: flex;
   justify-content: center;
-  background-color: #333;
+  background-color: var(--card-bg);
   margin-bottom: 20px;
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-radius: 0 0 8px 8px;
+  border: 1px solid var(--input-border);
 }
 
 nav ul li {
   margin: 0 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 nav ul li a {
-  color: white;
+  color: var(--text-color);
   text-decoration: none;
   padding: 10px 0;
   display: block;
@@ -37,82 +284,18 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-  color: #00bcd4; /* Um azul mais claro para o hover */
+  color: var(--highlight-color);
 }
-
-.auth-form-container {
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-  margin: 20px auto; /* Centraliza o formulário */
-  text-align: left;
-}
-
-.auth-form-container h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #333;
-}
-
-.auth-form-container div {
-  margin-bottom: 15px;
-}
-
-.auth-form-container label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #555;
-}
-
-.auth-form-container input[type="text"],
-.auth-form-container input[type="email"],
-.auth-form-container input[type="password"] {
-  width: calc(100% - 20px); /* Ajusta a largura considerando o padding */
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1em;
-}
-
-.auth-form-container button[type="submit"] {
-  width: 100%;
-  padding: 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 1.1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.auth-form-container button[type="submit"]:hover {
-  background-color: #0056b3;
-}
-
-.message {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 4px;
-  font-weight: bold;
-  text-align: center;
-}
-
-/* brasfut-app/frontend/src/App.css (Adicionar ao final) */
 
 .nav-user {
-  color: #add8e6; /* Um azul claro */
+  color: var(--text-color);
   padding: 10px 0;
   display: block;
   font-weight: bold;
 }
 
 .logout-button {
-  background-color: #dc3545; /* Vermelho */
+  background-color: #dc3545;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -120,9 +303,254 @@ nav ul li a:hover {
   cursor: pointer;
   font-size: 0.9em;
   transition: background-color 0.3s ease;
-  margin-left: 15px; /* Espaço do item anterior */
 }
 
 .logout-button:hover {
   background-color: #c82333;
+}
+
+
+/* Outros estilos (mantidos do App.css anterior) */
+.create-post-container {
+  background-color: var(--card-bg);
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 600px;
+  margin: 30px auto;
+  text-align: left;
+  border: 1px solid var(--input-border);
+}
+
+.create-post-container h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+.create-post-container textarea {
+  width: calc(100% - 22px);
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid var(--input-border);
+  border-radius: 5px;
+  font-size: 1em;
+  resize: vertical;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-actions span {
+  font-size: 0.9em;
+  color: var(--text-color);
+}
+
+.create-post-container button[type="submit"] {
+  padding: 10px 20px;
+  background-color: var(--highlight-color);
+  color: var(--button-primary-text);
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.create-post-container button[type="submit"]:hover {
+  background-color: #00e600;
+}
+
+.posts-list {
+  margin-top: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.post-card {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  text-align: left;
+  border: 1px solid var(--input-border);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--input-border);
+  padding-bottom: 8px;
+}
+
+.post-username {
+  font-weight: bold;
+  color: var(--link-color);
+  font-size: 1.1em;
+}
+
+.post-timestamp {
+  font-size: 0.8em;
+  color: var(--text-color);
+}
+
+.post-body {
+  margin-top: 10px;
+  line-height: 1.5;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.error-message {
+  color: #dc3545;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.loading-message {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--text-color);
+}
+
+.profile-page-container {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 700px;
+  margin: 30px auto;
+  text-align: center;
+  border: 1px solid var(--input-border);
+}
+
+.profile-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.profile-header h2 {
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.profile-email {
+  color: var(--text-color);
+  font-size: 0.9em;
+  margin-bottom: 15px;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 15px;
+  font-size: 1.1em;
+  color: var(--text-color);
+}
+
+.profile-stats span {
+  display: block;
+  padding: 5px 0;
+}
+
+.profile-stats span strong {
+  color: var(--link-color);
+}
+
+.follow-button {
+  margin-top: 20px;
+  padding: 10px 25px;
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.follow-button:hover {
+  opacity: 0.9;
+}
+
+h3 {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+.post-username-link {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.post-username-link:hover {
+  color: var(--highlight-color);
+  text-decoration: underline;
+}
+
+.feed-guidance-message {
+  background-color: var(--card-bg);
+  border-left: 5px solid var(--link-color);
+  padding: 15px 20px;
+  margin: 20px auto;
+  max-width: 600px;
+  border-radius: 5px;
+  color: var(--text-color);
+  font-size: 0.95em;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--input-border);
+}
+
+/* Responsividade para o layout de duas colunas em telas maiores */
+@media (min-width: 768px) {
+    .auth-page-content-wrapper {
+        flex-direction: row;
+        justify-content: center; /* Centraliza ambos os blocos */
+        align-items: center;
+        gap: 80px; /* Mais espaço entre logo e formulário */
+    }
+
+    .auth-logo-section {
+        flex: none; /* Não ocupa espaço flexível */
+        width: auto;
+    }
+
+    .auth-forms-section {
+        flex: none; /* Não ocupa espaço flexível */
+        width: auto;
+    }
+}
+
+/* Estilos adicionais para telas pequenas para manter o espaçamento */
+@media (max-width: 767px) {
+    .auth-form-card {
+        padding: 20px;
+    }
+    .auth-form input[type="text"],
+    .auth-form input[type="email"],
+    .auth-form input[type="password"] {
+        padding: 10px;
+    }
+    .auth-button {
+        padding: 12px;
+    }
 }
